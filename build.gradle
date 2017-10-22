@@ -1,0 +1,247 @@
+plugins {
+    id "de.undercouch.download" version "3.2.0"
+}
+
+def downloadUrl = 'https://www.apkmirror.com/wp-content/themes/APKMirror/download.php?id=289495'
+def apkFile = new File(buildDir, 'in.apk')
+def apkDir = new File(buildDir, 'apk')
+def outDir = new File(buildDir, 'out')
+def smaliDir = new File(outDir, 'smali')
+def sdkDir = new File(System.getProperty('sdk.dir') ?: System.getenv("ANDROID_SDK")
+        ?: System.getenv("SDK_ROOT"))
+
+import de.undercouch.gradle.tasks.download.Download
+
+apply plugin: "maven-publish"
+
+task hello {
+    doLast {
+        println 'Hello world!'
+    }
+}
+
+task downloadApk(type: Download) {
+    src downloadUrl
+    dest apkFile
+    onlyIfNewer true
+}
+
+task extractApk(dependsOn: downloadApk, type: JavaExec) {
+    classpath = files('libs/apktool_2.3.0.jar')
+    main = 'brut.apktool.Main'
+    args 'decode', '-o', apkDir, '-f', apkFile
+}
+
+task collectResources(dependsOn: extractApk) {
+    doLast {
+        def KEEP_EXTRA_RES = [
+                '@style/Base.CardView',
+            ]
+
+        // Extract symbols
+        def symbols = [:]
+        fileTree(dir: apkDir)
+                .include('smali*/com/google/android/apps/auto/sdk/ui/R$*.smali')
+                .each { File file ->
+            def filesyms = [:];
+            file.eachLine { String line ->
+                if (!line.startsWith('.field public static final '))
+                    return
+                def tokens = line.split()
+                def namesig = tokens[4].split(':')
+                if (namesig[1] != 'I')
+                    return
+                filesyms[namesig[0]] = Integer.decode(tokens[6])
+            }
+            def basename = file.name.take(file.name.lastIndexOf('.')).split('\\$')[1]
+            symbols[basename] = filesyms
+        }
+        println symbols
+
+        // Process value resources
+        fileTree(dir: apkDir)
+                .include('res/values*/*')
+                .each { File file ->
+            def relpath = file.absolutePath - apkDir.absolutePath
+            println relpath
+            def xml = new XmlParser().parse(file)
+            assert xml.name() == 'resources'
+            println xml.children().size()
+            def toremove = []
+            xml.each { child ->
+                def category = child.name()
+                def name = child.@name
+                if (category == 'item' || category == 'public')
+                    category = child.@type
+                if (!(symbols.get(category) ?: [:]).containsKey(name)
+                        && !KEEP_EXTRA_RES.contains('@' + category + '/' + name)) {
+                    toremove.add(child)
+                }
+            }
+            toremove.each { child ->
+                xml.remove(child)
+            }
+            println xml.children().size()
+            if (xml.children().size() > 0) {
+                def outfile = new File(outDir, relpath)
+                outfile.getParentFile().mkdirs()
+                new XmlNodePrinter(new PrintWriter(new FileWriter(outfile))).print(xml)
+            }
+        }
+
+        // Process remaining resources
+        fileTree(dir: apkDir)
+                .include('res/*/*')
+                .exclude('res/values*/*')
+                .each { File file ->
+            def category = file.getParentFile().getName().split('-')[0]
+            def name = file.name.take(file.name.lastIndexOf('.'))
+            if (!(symbols.get(category) ?: [:]).containsKey(name))
+                return
+            def relpath = file.absolutePath - apkDir.absolutePath
+            println relpath
+            def outfile = new File(outDir, relpath)
+            outfile.getParentFile().mkdirs()
+            outfile.text = file.text
+        }
+
+        // Fixup attrs
+        def attrsFile = new File(outDir, 'res/values/attrs.xml')
+        def xml = new XmlParser().parse(attrsFile)
+        symbols.styleable.each { k, v ->
+            def s = k.split('_')[0]
+            def items = symbols.styleable.findAll { it.key.startsWith(s + '_') }.collect { it.key }
+            items.sort { symbols.styleable[it] }
+            def decl = xml.appendNode('declare-styleable', ['name': s])
+            items.each { item ->
+                def name = item.split('_', 2)[1].replace('_', ':')
+                def node = xml.attr.find { attr -> attr.@name == name }
+                if (node) {
+                    xml.remove(node)
+                    decl.append(node)
+                } else {
+                    decl.appendNode('attr', ['name': name])
+                }
+            }
+        }
+        new XmlNodePrinter(new PrintWriter(new FileWriter(attrsFile))).print(xml)
+
+        // Fixup layouts
+        fileTree(dir: outDir)
+                .include('res/layout*/*')
+                .each { File file ->
+            def relpath = file.absolutePath - outDir.absolutePath
+            println relpath
+            def content = file.text.replaceAll('@id/', '@+id/')
+            file.text = content
+        }
+
+        // Write manifest
+        new File(outDir, 'AndroidManifest.xml').text =
+            """<?xml version="1.0" encoding="utf-8"?>
+            <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+                    package="com.google.android.apps.auto.sdk.ui">
+                <application />
+            </manifest>"""
+    }
+}
+
+task aaptResources(dependsOn: collectResources, type: Exec) {
+    def aaptDir = new File(outDir, 'aapt')
+    aaptDir.mkdirs()
+
+    executable new File(sdkDir, 'build-tools/25.0.1/aapt')
+    args 'p',
+        '-M', new File(outDir, 'AndroidManifest.xml'),
+        '-S', new File(outDir, 'res'),
+        '-I', new File(sdkDir, 'platforms/android-25/android.jar'),
+        '-J', aaptDir,
+        '--output-text-symbols', outDir
+}
+
+task makePublicTxt(dependsOn: aaptResources, type: Copy) {
+    from new File(outDir, 'R.txt')
+    into outDir
+    rename { 'public.txt' }
+}
+
+task collectSmali(dependsOn: extractApk) {
+    doLast {
+        def PACKAGES_TO_EXTRACT = [
+                'com.google.android.apps.auto.sdk',
+                'com.google.android.gms.car',
+                'com.google.android.a',
+                'com.google.android.b',
+                'android.support.car',
+            ]
+
+        smaliDir.mkdirs()
+        fileTree(dir: apkDir)
+                .include('smali*/**/*.smali')
+                .each { File file ->
+            def relpath = file.absolutePath - apkDir.absolutePath
+            relpath = relpath.split('/', 3)[2]
+            def classname = relpath.split('\\.')[0].replaceAll('/', '.')
+            if (classname.split('$')[0] == 'com.google.android.apps.auto.sdk.ui.R')
+                return
+            def found = false
+            PACKAGES_TO_EXTRACT.each { pkg ->
+                if (classname.startsWith(pkg + '.'))
+                    found = true
+            }
+            if (!found)
+                return
+            println classname
+            def text = file.text
+            // HACK: This is not strictly needed, but it confuses Android
+            // Studio, which thinks that CarActivity is not a ContextManager.
+            text = text.replaceAll('L(com/google/android/./.);', 'L$1gizmo;')
+
+            def outfile = new File(smaliDir, relpath)
+            outfile.getParentFile().mkdirs()
+            outfile.text = text
+        }
+        fileTree(dir: smaliDir)
+                .include('com/google/android/?/?.smali')
+                .each { File file ->
+            file.renameTo new File(file.getParentFile(),
+                    file.getName().split('\\.')[0] + 'gizmo.smali')
+        }
+    }
+}
+
+task buildDex(dependsOn: collectSmali, type: JavaExec) {
+    classpath = files('libs/smali-2.2.1.jar')
+    main = 'org.jf.smali.Main'
+    args 'a', '-o', new File(outDir, 'classes.dex'), smaliDir
+}
+
+task buildJar(dependsOn: buildDex, type: JavaExec) {
+    classpath = fileTree(dir: 'libs/dex2jar-2.0')
+    main = 'com.googlecode.dex2jar.tools.Dex2jarCmd'
+    args '-d', '-o', new File(outDir, 'classes.jar'), '--force',
+            new File(outDir, 'classes.dex')
+}
+
+task buildAar(dependsOn: [collectResources, makePublicTxt, buildJar],
+        type: Zip) {
+    from outDir
+    include 'AndroidManifest.xml', 'R.txt', 'public.txt', 'classes.jar', 'res/**'
+    archiveName 'aauto.aar'
+    destinationDir buildDir
+}
+
+task build(dependsOn: buildAar)
+
+publishing {
+    publications {
+		maven(MavenPublication) {
+            groupId 'com.github.martoreto'
+            artifactId 'aauto-sdk'
+            version 'master-SNAPSHOT'
+
+			artifact new File(buildDir, 'aauto.aar')
+		}
+	}
+}
+
