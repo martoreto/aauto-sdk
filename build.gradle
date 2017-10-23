@@ -102,8 +102,12 @@ task collectResources(dependsOn: extractApk) {
         // Fixup attrs
         def attrsFile = new File(outDir, 'res/values/attrs.xml')
         def xml = new XmlParser().parse(attrsFile)
+        def attrsDone = [] as Set
         symbols.styleable.each { k, v ->
             def s = k.split('_')[0]
+            if (attrsDone.contains(s))
+                return
+            attrsDone.add(s)
             def items = symbols.styleable.findAll { it.key.startsWith(s + '_') }.collect { it.key }
             items.sort { symbols.styleable[it] }
             def decl = xml.appendNode('declare-styleable', ['name': s])
