@@ -247,10 +247,3 @@ publishing {
 		}
 	}
 }
-
-/*artifacts {
-    archives file: new File(buildDir, 'aauto.aar'),
-            type: 'aar',
-            builtBy: buildAar
-}*/
-
