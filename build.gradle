@@ -142,7 +142,10 @@ task collectResources(dependsOn: extractApk) {
 
 task aaptResources(dependsOn: collectResources, type: Exec) {
     def aaptDir = new File(outDir, 'aapt')
-    aaptDir.mkdirs()
+
+    doFirst {
+        aaptDir.mkdirs()
+    }
 
     executable new File(sdkDir, 'build-tools/25.0.1/aapt')
     args 'p',
