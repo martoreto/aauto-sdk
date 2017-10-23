@@ -96,7 +96,7 @@ task collectResources(dependsOn: extractApk) {
             println relpath
             def outfile = new File(outDir, relpath)
             outfile.getParentFile().mkdirs()
-            outfile.text = file.text
+            outfile.setBytes(file.getBytes())
         }
 
         // Fixup attrs
