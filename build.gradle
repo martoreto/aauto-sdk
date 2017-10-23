@@ -8,17 +8,11 @@ def apkDir = new File(buildDir, 'apk')
 def outDir = new File(buildDir, 'out')
 def smaliDir = new File(outDir, 'smali')
 def sdkDir = new File(System.getProperty('sdk.dir') ?: System.getenv("ANDROID_SDK")
-        ?: System.getenv("SDK_ROOT"))
+        ?: System.getenv("SDK_ROOT") ?: System.getenv("ANDROID_HOME"))
 
 import de.undercouch.gradle.tasks.download.Download
 
 apply plugin: "maven-publish"
-
-task hello {
-    doLast {
-        println 'Hello world!'
-    }
-}
 
 task downloadApk(type: Download) {
     src downloadUrl
@@ -236,12 +230,18 @@ task build(dependsOn: buildAar)
 publishing {
     publications {
 		maven(MavenPublication) {
-            groupId 'com.github.martoreto'
-            artifactId 'aauto-sdk'
-            version 'master-SNAPSHOT'
+            groupId System.getenv('GROUP') ?: 'com.github.martoreto'
+            artifactId System.getenv('ARTIFACT') ?: 'aauto-sdk'
+            version System.getenv('VERSION') ?: 'master-SNAPSHOT'
 
 			artifact new File(buildDir, 'aauto.aar')
 		}
 	}
 }
+
+/*artifacts {
+    archives file: new File(buildDir, 'aauto.aar'),
+            type: 'aar',
+            builtBy: buildAar
+}*/
 
