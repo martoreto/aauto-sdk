@@ -225,6 +225,12 @@ task buildAar(dependsOn: [collectResources, makePublicTxt, buildJar],
     destinationDir buildDir
 }
 
+task clean {
+    doLast {
+        delete buildDir
+    }
+}
+
 task build(dependsOn: buildAar)
 
 publishing {
