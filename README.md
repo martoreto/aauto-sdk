@@ -66,6 +66,8 @@ values/dimens.xml
 values/styles.xml
 ```
 
+Actually, some version of `android.support.car` [is open source](https://android.googlesource.com/platform/packages/services/Car/+/master/car-support-lib/) and has docs in code.
+
 ### OEM activities
 
 look like this in _AndroidMainfest.xml_:
