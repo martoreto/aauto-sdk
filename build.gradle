@@ -183,7 +183,7 @@ task collectSmali(dependsOn: extractApk) {
             def relpath = file.absolutePath - apkDir.absolutePath
             relpath = relpath.split('/', 3)[2]
             def classname = relpath.split('\\.')[0].replaceAll('/', '.')
-            if (classname.split('$')[0] == 'com.google.android.apps.auto.sdk.ui.R')
+            if (classname.split('\\$')[0] == 'com.google.android.apps.auto.sdk.ui.R')
                 return
             def found = false
             PACKAGES_TO_EXTRACT.each { pkg ->
