@@ -55,6 +55,7 @@ task collectResources(dependsOn: extractApk) {
         // Process value resources
         fileTree(dir: apkDir)
                 .include('res/values*/*')
+                .exclude('res/values/public.xml')
                 .each { File file ->
             def relpath = file.absolutePath - apkDir.absolutePath
             println relpath
@@ -155,9 +156,11 @@ task aaptResources(dependsOn: collectResources, type: Exec) {
     args 'p',
         '-M', new File(outDir, 'AndroidManifest.xml'),
         '-S', new File(outDir, 'res'),
+        '-S', new File(projectDir, 'res-extra'),
         '-I', new File(sdkDir, 'platforms/android-25/android.jar'),
         '-J', aaptDir,
-        '--output-text-symbols', outDir
+        '--output-text-symbols', outDir,
+        '--auto-add-overlay'
 }
 
 task makePublicTxt(dependsOn: aaptResources, type: Copy) {
