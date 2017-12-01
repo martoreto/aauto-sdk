@@ -176,6 +176,7 @@ task collectSmali(dependsOn: extractApk) {
                 'com.google.android.gms.car',
                 'com.google.android.a',
                 'com.google.android.b',
+                'com.google.a',
                 'android.support.car',
             ]
 
