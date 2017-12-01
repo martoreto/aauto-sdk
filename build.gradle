@@ -228,10 +228,16 @@ task buildJar(dependsOn: buildDex, type: JavaExec) {
             new File(outDir, 'classes.dex')
 }
 
-task buildAar(dependsOn: [collectResources, makePublicTxt, buildJar],
-        type: Zip) {
+task makeProguardTxt(type: Copy) {
+    from new File(projectDir, 'proguard.txt')
+    into outDir
+}
+
+task buildAar(dependsOn: [collectResources, makePublicTxt, buildJar,
+        makeProguardTxt], type: Zip) {
     from outDir
-    include 'AndroidManifest.xml', 'R.txt', 'public.txt', 'classes.jar', 'res/**'
+    include 'AndroidManifest.xml', 'R.txt', 'public.txt', 'proguard.txt',
+            'classes.jar', 'res/**'
     archiveName 'aauto.aar'
     destinationDir buildDir
 }

@@ -1,0 +1,2 @@
+-dontwarn com.google.android.gms.common.internal.Hide
+-dontwarn com.google.android.gms.common.util.VisibleForTesting
