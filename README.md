@@ -188,5 +188,5 @@ In order to use the vendor channel:
    ```
    <uses-permission android:name="com.google.android.gms.permission.CAR_VENDOR_EXTENSION"/>
    ```
-   in its _AndroidManifest.xml_.
+   in its _AndroidManifest.xml_ (and granted at runtime on Marshmallow or later).
    
