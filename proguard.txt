@@ -1,3 +1,4 @@
+-dontwarn javax.annotation.concurrent.GuardedBy
 -dontwarn com.google.android.gms.common.internal.Hide
 -dontwarn com.google.android.gms.common.util.VisibleForTesting
 -keep class com.google.android.gms.car.** { *; }
