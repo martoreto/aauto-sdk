@@ -3,6 +3,9 @@ plugins {
 }
 
 def downloadUrl = 'https://www.apkmirror.com/wp-content/themes/APKMirror/download.php?id=289495'
+// NOTE WHEN UPGRADING:
+// - update Play Services version in maven dependencies below
+
 def apkFile = new File(buildDir, 'in.apk')
 def apkDir = new File(buildDir, 'apk')
 def outDir = new File(buildDir, 'out')
@@ -271,6 +274,34 @@ publishing {
             version System.getenv('VERSION') ?: 'master-SNAPSHOT'
 
 			artifact new File(buildDir, 'aauto.aar')
+
+            pom.withXml {
+                def deps = asNode().appendNode('dependencies')
+                def dep
+
+                dep = deps.appendNode('dependency')
+                dep.appendNode('groupId', 'com.android.support')
+                dep.appendNode('artifactId', 'support-v4')
+                dep.appendNode('version', '21.0.3')
+
+                dep = deps.appendNode('dependency')
+                dep.appendNode('groupId', 'com.android.support')
+                dep.appendNode('artifactId', 'appcompat-v7')
+                dep.appendNode('version', '21.0.3')
+
+                dep = deps.appendNode('dependency')
+                dep.appendNode('groupId', 'com.android.support')
+                dep.appendNode('artifactId', 'recyclerview-v7')
+                dep.appendNode('version', '21.0.3')
+
+                // The Play Services version here should be the same as used in
+                // the source APK. I'm not sure what happens when the app uses
+                // the newer version, though.
+                dep = deps.appendNode('dependency')
+                dep.appendNode('groupId', '	com.google.android.gms')
+                dep.appendNode('artifactId', 'play-services-base')
+                dep.appendNode('version', '11.4.0')
+            }
 		}
 	}
 }
