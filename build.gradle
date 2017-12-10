@@ -298,7 +298,7 @@ publishing {
                 // the source APK. I'm not sure what happens when the app uses
                 // the newer version, though.
                 dep = deps.appendNode('dependency')
-                dep.appendNode('groupId', '	com.google.android.gms')
+                dep.appendNode('groupId', 'com.google.android.gms')
                 dep.appendNode('artifactId', 'play-services-base')
                 dep.appendNode('version', '11.4.0')
             }
