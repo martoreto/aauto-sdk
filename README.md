@@ -10,7 +10,11 @@ Distraction is dangerous.
 
 ## Demo
 
-Have a look at [the demo app](https://github.com/martoreto/aauto-sdk-demo).
+Have a look at these example apps:
+
+* [aauto-sdk-demo](https://github.com/martoreto/aauto-sdk-demo)
+
+* [aa-stats](https://github.com/martoreto/aa-stats)
 
 ## Usage
 
