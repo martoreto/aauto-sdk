@@ -194,3 +194,15 @@ In order to use the vendor channel:
    ```
    in its _AndroidManifest.xml_ (and granted at runtime on Marshmallow or later).
    
+## Building
+
+Usually, there's no need to build the SDK yourself. If you have a need, please share it by
+contributing pull requests. :)
+
+To build the SDK yourself, just do this:
+
+```sh
+./gradlew build
+```
+
+The result is ``build/aauto.aar``.
