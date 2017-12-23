@@ -14,7 +14,7 @@ Have a look at these example apps:
 
 * [aauto-sdk-demo](https://github.com/martoreto/aauto-sdk-demo)
 
-* [aa-stats](https://github.com/martoreto/aa-stats)
+* [aastats](https://github.com/martoreto/aastats)
 
 ## Usage
 
