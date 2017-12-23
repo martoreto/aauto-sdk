@@ -37,10 +37,22 @@ task downloadApk(type: Download) {
     onlyIfNewer true
 }
 
-task extractApk(dependsOn: downloadApk, type: JavaExec) {
+// This is a Gradle incremental task which means that it won't
+// be re-executed if the inputFile did not change.
+class JavaExecExtract extends JavaExec {
+    @Input
+    File inputFile
+
+    @OutputDirectory
+    File outputDir
+}
+
+task extractApk(dependsOn: downloadApk, type: JavaExecExtract) {
     classpath = files('libs/apktool_2.3.0.jar')
     main = 'brut.apktool.Main'
     args 'decode', '-o', apkDir, '-f', apkFile
+    inputFile = apkFile
+    outputDir = apkDir
 }
 
 task collectResources(dependsOn: extractApk) {
