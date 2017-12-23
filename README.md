@@ -199,10 +199,14 @@ In order to use the vendor channel:
 Usually, there's no need to build the SDK yourself. If you have a need, please share it by
 contributing pull requests. :)
 
-To build the SDK yourself, just do this:
+To build the SDK yourself:
 
-```sh
-./gradlew build
-```
+1. Set ``ANDROID_HOME`` enviroment variable to point to the Android SDK folder.
+
+2. Do this:
+
+    ```sh
+    ./gradlew build
+    ```
 
 The result is ``build/aauto.aar``.
