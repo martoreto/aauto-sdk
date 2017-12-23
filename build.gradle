@@ -27,6 +27,7 @@ def sdkDir = new File(rootSdkDir ?: System.getProperty('sdk.dir') ?: System.gete
         ?: System.getenv("SDK_ROOT") ?: System.getenv("ANDROID_HOME"))
 
 import de.undercouch.gradle.tasks.download.Download
+import java.util.regex.Pattern
 
 apply plugin: "maven-publish"
 
@@ -201,8 +202,8 @@ task collectSmali(dependsOn: extractApk) {
                 .include('smali*/**/*.smali')
                 .each { File file ->
             def relpath = file.absolutePath - apkDir.absolutePath
-            relpath = relpath.split(File.separator, 3)[2]
-            def classname = relpath.split('\\.')[0].replaceAll(File.separator, '.')
+            relpath = relpath.split(Pattern.quote(File.separator), 3)[2]
+            def classname = relpath.split('\\.')[0].replaceAll(Pattern.quote(File.separator), '.')
             if (classname.split('\\$')[0] == 'com.google.android.apps.auto.sdk.ui.R')
                 return
             def found = false
