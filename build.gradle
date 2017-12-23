@@ -292,6 +292,13 @@ publishing {
                 def deps = asNode().appendNode('dependencies')
                 def dep
 
+                // The final product support libraries version should be the
+                // same as its compileSdk, and we don't know what compileSdk
+                // the final app will have. Threfore I leave the oldest
+                // possible versions of support libraries here, and if the app
+                // uses the newer ones, Gradle will resolve it so that these
+                // newer versions will be used.
+
                 dep = deps.appendNode('dependency')
                 dep.appendNode('groupId', 'com.android.support')
                 dep.appendNode('artifactId', 'support-v4')
@@ -310,6 +317,7 @@ publishing {
                 // The Play Services version here should be the same as used in
                 // the source APK. I'm not sure what happens when the app uses
                 // the newer version, though.
+
                 dep = deps.appendNode('dependency')
                 dep.appendNode('groupId', 'com.google.android.gms')
                 dep.appendNode('artifactId', 'play-services-base')
