@@ -11,19 +11,19 @@ def apkDir = new File(buildDir, 'apk')
 def outDir = new File(buildDir, 'out')
 def smaliDir = new File(outDir, 'smali')
 
-def parentSdkDir
-if (parent != null) {
-    def parentLocalProperties = new File(parent.projectDir, 'local.properties')
-    if (parentLocalProperties.exists()) {
-        Properties properties = new Properties()
-        parentLocalProperties.withInputStream { instr ->
-            properties.load(instr)
-        }
-        parentSdkDir = properties.getProperty('sdk.dir')
+// Detect Android SDK location using Android Studio-generated
+// local.properties in the root project.
+def rootSdkDir
+def rootLocalProperties = new File(rootProject.projectDir, 'local.properties')
+if (rootLocalProperties.exists()) {
+    Properties properties = new Properties()
+    rootLocalProperties.withInputStream { instr ->
+        properties.load(instr)
     }
+    rootSdkDir = properties.getProperty('sdk.dir')
 }
 
-def sdkDir = new File(parentSdkDir ?: System.getProperty('sdk.dir') ?: System.getenv("ANDROID_SDK")
+def sdkDir = new File(rootSdkDir ?: System.getProperty('sdk.dir') ?: System.getenv("ANDROID_SDK")
         ?: System.getenv("SDK_ROOT") ?: System.getenv("ANDROID_HOME"))
 
 import de.undercouch.gradle.tasks.download.Download
