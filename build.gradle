@@ -201,8 +201,8 @@ task collectSmali(dependsOn: extractApk) {
                 .include('smali*/**/*.smali')
                 .each { File file ->
             def relpath = file.absolutePath - apkDir.absolutePath
-            relpath = relpath.split('/', 3)[2]
-            def classname = relpath.split('\\.')[0].replaceAll('/', '.')
+            relpath = relpath.split(File.separator, 3)[2]
+            def classname = relpath.split('\\.')[0].replaceAll(File.separator, '.')
             if (classname.split('\\$')[0] == 'com.google.android.apps.auto.sdk.ui.R')
                 return
             def found = false
