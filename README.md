@@ -163,6 +163,7 @@ called vendor channel. It's basically a byte channel.
 The protocol inside is vendor-specific:
 
  * Volkswagen Group uses [Exlap](https://www.scribd.com/document/158754515/EXLAP-Specification-V1-3-Creative-Commons-BY-SA-3-0-Volkswagen-pdf)
+ * Ford Performance vehicles use [an unknown protocol](https://m.apkpure.com/ford-performance-app/com.ford.performance.android.experience)
 
 Example use:
 
