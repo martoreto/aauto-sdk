@@ -186,7 +186,9 @@ mVexManager.sendData(new byte[] { (byte) 1, (byte) 2, (byte) 3 });
 
 In order to use the vendor channel:
 
- * the package name of the application must be on the list provided by the car,
+ * the package name of the application must be on the list provided by the car
+   (use [this app](https://forum.xda-developers.com/showpost.php?p=75013615&postcount=86)
+   to see the list),
 
  * the app must have
 
