@@ -54,7 +54,8 @@ and save this as _res/xml/automotive_app_desc.xml_:
 </automotiveApp>
 ```
 
-## API
+## OEM activities
+### API
 
 There are no docs, but you can explore the API in Android Studio after switching to the _Package_ view:
 
@@ -72,7 +73,7 @@ values/styles.xml
 
 Actually, some version of `android.support.car` [is open source](https://android.googlesource.com/platform/packages/services/Car/+/master/car-support-lib/) and has docs in code.
 
-### OEM activities (right-most icon)
+### Manifest
 
 look like this in _AndroidMainfest.xml_:
 
@@ -88,6 +89,22 @@ look like this in _AndroidMainfest.xml_:
     </intent-filter>
 </service>
 ```
+
+### Testing & Running OEM apps
+
+Testing OEM apps with the Android SDK and a virtual headunit on a computer is straight-forward, follow [Testing Apps for Auto](https://developer.android.com/training/auto/testing/index.html). Summary:
+1. Install Android Auto Desktop Head Unit (DHU) from Android SDK manager
+2. Connect phone to computer
+3. Run <Android SDK Location>/sdk/platform-tools/adb forward tcp:5277 tcp:5277
+4. Run <Android SDK Location>/sdk/extras/google/auto/desktop-head-unit.exe
+
+For running apps on your phone in an actual vehicle, it is required to adjust the settings of Android Auto to allow apps from unknown sources. To do so, follow these steps:
+1. Disconnect phone from car
+2. Start Android Auto on your phone
+3. Go to Hamburger Menu -> About
+4. Tap the title "About Android Auto" 10 times to activate developer options
+5. Go to three dots menu (top right) and go to "Developer settings"
+6. Scroll down and activate "Unkown sources"
 
 ### Accessing sensors
 
