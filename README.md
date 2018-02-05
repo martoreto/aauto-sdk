@@ -75,7 +75,7 @@ Actually, some version of `android.support.car` [is open source](https://android
 
 ### Manifest
 
-looks like this in _AndroidMainfest.xml_:
+A new OEM activity looks like this in _AndroidMainfest.xml_:
 
 ```xml
 <service
