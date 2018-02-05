@@ -75,7 +75,7 @@ Actually, some version of `android.support.car` [is open source](https://android
 
 ### Manifest
 
-look like this in _AndroidMainfest.xml_:
+looks like this in _AndroidMainfest.xml_:
 
 ```xml
 <service
@@ -90,7 +90,7 @@ look like this in _AndroidMainfest.xml_:
 </service>
 ```
 
-### Testing & Running OEM apps
+### Testing & Running
 
 Testing OEM apps with the Android SDK and a virtual headunit on a computer is straight-forward, follow [Testing Apps for Auto](https://developer.android.com/training/auto/testing/index.html). Summary:
 1. Install Android Auto Desktop Head Unit (DHU) from Android SDK manager
