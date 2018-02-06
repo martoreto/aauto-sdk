@@ -141,13 +141,12 @@ private final CarConnectionCallback mCarConnectionCallback = new CarConnectionCa
         try {
             Log.d(TAG, "Connected to car");
             CarSensorManager sensorManager = (CarSensorManager) car.getCarManager(Car.SENSOR_SERVICE);
-            sensorManager.addListener(mSensorsListener, CarSensorManager.SENSOR_TYPE_DRIVING_STATUS,
-                    CarSensorManager.SENSOR_RATE_NORMAL);
-            CarSensorEvent ds = sensorManager.getLatestSensorEvent(CarSensorManager.SENSOR_TYPE_DRIVING_STATUS);
-            if (ds != null) {
-                mSensorsListener.onSensorChanged(sensorManager, ds);
-            } else {
-                Log.i(TAG, "Driving status unknown.");
+            
+            //Get supported sensor types:
+            int[] supportedSensors = sensorManager.getSupportedSensors();
+            for(int sensorId : supportedSensors){
+                log("Supported sensor id: "+sensorId);
+                sensorManager.addListener(mSensorsListener, sensorId, SENSOR_RATE_NORMAL);
             }
         } catch (Exception e) {
             Log.w(TAG, "Error setting up car connection", e);
@@ -163,10 +162,18 @@ private final CarConnectionCallback mCarConnectionCallback = new CarConnectionCa
 private final CarSensorManager.OnSensorChangedListener mSensorsListener = new CarSensorManager.OnSensorChangedListener() {
     @Override
     public void onSensorChanged(CarSensorManager sensorManager, CarSensorEvent ev) {
-        Log.v(TAG, "Sensor event: " + ev);
-        CarSensorEvent.DrivingStatusData ds = ev.getDrivingStatusData();
-        if (ds != null) {
-            // Do something with this
+        switch (ev.sensorType){
+            case SENSOR_TYPE_NIGHT:
+                log("isNightMode " + ev.getNightData().isNightMode);
+                break;
+            case SENSOR_TYPE_DRIVING_STATUS:
+                CarSensorEvent.DrivingStatusData ds = ev.getDrivingStatusData();
+                log("videoRestricted: " + ds.isVideoRestricted() + ", fullyRestr:" + ds.isFullyRestricted());
+                break;
+            default:
+                log("Unhandled " + ev.sensorType);
+                //Include it in the switch-case statement
+                break;
         }
     }
 };
